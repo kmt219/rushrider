@@ -1,0 +1,8 @@
+{
+    "installCommand": "cd ../.. && pnpm install --filter=dexworks...",
+    "buildCommand": "cd ../.. && pnpm turbo build --filter=dexworks",
+    "framework": "vite",
+    "outputDirectory": "dist",
+    "ignoreCommand": "npx turbo-ignore",
+    "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+}

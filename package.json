@@ -1,0 +1,52 @@
+{
+  "name": "goldrush-demos-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "format": "prettier --write \"apps/**/*.{ts,tsx,js,jsx,json,css,md,html}\" --ignore-path .prettierignore",
+    "format:check": "prettier --check \"apps/**/*.{ts,tsx,js,jsx,json,css,md,html}\" --ignore-path .prettierignore",
+    "lint": "eslint \"apps/**/*.{ts,tsx,js,jsx}\"",
+    "lint:fix": "eslint \"apps/**/*.{ts,tsx,js,jsx}\" --fix",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "@trivago/prettier-plugin-sort-imports": "^6.0.2",
+    "@typescript-eslint/eslint-plugin": "^8.53.0",
+    "eslint": "^9.39.2",
+    "eslint-config-next": "^16.1.6",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "globals": "^16.2.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
+    "prettier": "^3.8.0",
+    "turbo": "^2.9.5",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.57.0"
+  },
+  "lint-staged": {
+    "apps/**/*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write --ignore-path .prettierignore"
+    ],
+    "apps/**/*.{js,jsx}": [
+      "eslint --fix",
+      "prettier --write --ignore-path .prettierignore"
+    ],
+    "packages/**/*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write --ignore-path .prettierignore"
+    ],
+    "packages/**/*.{js,jsx}": [
+      "eslint --fix",
+      "prettier --write --ignore-path .prettierignore"
+    ],
+    "apps/**/*.{json,css,md,html}": [
+      "prettier --write --ignore-path .prettierignore"
+    ],
+    "packages/**/*.{json,css,md,html}": [
+      "prettier --write --ignore-path .prettierignore"
+    ]
+  },
+  "packageManager": "pnpm@10.4.1"
+}

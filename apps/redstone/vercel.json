@@ -1,0 +1,7 @@
+{
+    "installCommand": "cd ../.. && pnpm install --filter=redstone...",
+    "buildCommand": "cd ../.. && pnpm turbo build --filter=redstone",
+    "framework": "vite",
+    "outputDirectory": "dist",
+    "ignoreCommand": "npx turbo-ignore"
+}

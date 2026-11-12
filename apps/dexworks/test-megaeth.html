@@ -1,0 +1,140 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Test MEGAETH Stream</title>
+        <style>
+            body {
+                font-family: monospace;
+                padding: 20px;
+                background: #1a1a1a;
+                color: #00ff00;
+            }
+            .log {
+                padding: 5px;
+                border-bottom: 1px solid #333;
+            }
+            .error {
+                color: #ff4444;
+            }
+            .success {
+                color: #44ff44;
+            }
+            .info {
+                color: #4444ff;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>MEGAETH Stream Test</h1>
+        <div id="status">Connecting...</div>
+        <div id="logs"></div>
+
+        <script type="module">
+            import { createClient } from "https://esm.sh/graphql-ws@5.14.0";
+
+            const API_KEY = prompt("Enter your GoldRush API Key:");
+            if (!API_KEY) {
+                document.getElementById("status").innerHTML = '<span class="error">No API key provided</span>';
+                throw new Error("No API key");
+            }
+
+            const streamUrl = "wss://streaming.goldrushdata.com/graphql";
+            const logs = document.getElementById("logs");
+            const status = document.getElementById("status");
+
+            function log(message, type = "log") {
+                const div = document.createElement("div");
+                div.className = `log ${type}`;
+                div.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+                logs.appendChild(div);
+                console.log(message);
+            }
+
+            try {
+                log("Creating WebSocket client...", "info");
+
+                const client = createClient({
+                    url: streamUrl,
+                    connectionParams: {
+                        "X-API-KEY": API_KEY,
+                    },
+                });
+
+                const query = `
+            subscription {
+              newPairs(chain_name: MEGAETH_MAINNET) {
+                chain_name
+                protocol
+                pair_address
+                deployer_address
+                block_signed_at
+                liquidity
+                market_cap
+                quote_rate_usd
+                base_token {
+                  contract_ticker_symbol
+                  contract_address
+                }
+                quote_token {
+                  contract_ticker_symbol
+                  contract_address
+                }
+              }
+            }`;
+
+                log("Subscribing to newPairs on MEGAETH_MAINNET...", "info");
+                status.innerHTML = '<span class="info">Subscribed - Waiting for data...</span>';
+
+                let receivedCount = 0;
+
+                const unsubscribe = client.subscribe(
+                    { query },
+                    {
+                        next: (result) => {
+                            receivedCount++;
+                            if (result.errors) {
+                                log(`ERROR: ${JSON.stringify(result.errors)}`, "error");
+                                status.innerHTML = `<span class="error">Stream error: ${result.errors[0]?.message || "Unknown error"}</span>`;
+                            } else if (result.data?.newPairs) {
+                                const pair = result.data.newPairs;
+                                log(
+                                    `✓ New pair: ${pair.base_token.contract_ticker_symbol}/${pair.quote_token.contract_ticker_symbol} | Liquidity: $${pair.liquidity?.toFixed(2) || 0}`,
+                                    "success"
+                                );
+                                status.innerHTML = `<span class="success">Connected - Received ${receivedCount} pairs</span>`;
+                            } else {
+                                log(`Received data: ${JSON.stringify(result.data)}`, "info");
+                            }
+                        },
+                        error: (err) => {
+                            log(`Subscription error: ${err.message || err}`, "error");
+                            status.innerHTML = `<span class="error">Connection failed: ${err.message || err}</span>`;
+                        },
+                        complete: () => {
+                            log("Subscription completed", "info");
+                            status.innerHTML = '<span class="info">Stream ended</span>';
+                        },
+                    }
+                );
+
+                // Test timeout - if no data after 30 seconds
+                setTimeout(() => {
+                    if (receivedCount === 0) {
+                        log("⚠ No pairs received after 30 seconds. MEGAETH may have low activity.", "error");
+                        status.innerHTML =
+                            '<span class="error">No activity detected on MEGAETH - Try BASE_MAINNET instead?</span>';
+                    }
+                }, 30000);
+
+                // Cleanup on page unload
+                window.addEventListener("beforeunload", () => {
+                    unsubscribe();
+                    client.dispose();
+                });
+            } catch (err) {
+                log(`Fatal error: ${err.message}`, "error");
+                status.innerHTML = `<span class="error">Failed: ${err.message}</span>`;
+            }
+        </script>
+    </body>
+</html>

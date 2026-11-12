@@ -1,0 +1,130 @@
+syntax = "proto3";
+package hlnode;
+
+// Envelope — every WS message from the node is wrapped in this.
+// The `type` field identifies which payload field is populated.
+message NodeMessage {
+  string type = 1; // "fills" | "trades" | "orders" | "misc"
+  NodeFillsByBlock fills = 2;
+  NodeTradesByBlock trades = 3;
+  OrdersByBlock orders = 4;
+  MiscEventsByBlock misc = 5;
+}
+
+// ─── Stream 1: Fills ──────────────────────────────────────────────
+message NodeFillsByBlock {
+  uint64 block_number = 1;
+  string block_time = 2;
+  string local_time = 3;
+  repeated FillEvent events = 4;
+}
+
+message FillEvent {
+  string user_address = 1;
+  string coin = 2;
+  string px = 3;
+  string sz = 4;
+  string side = 5;          // "B" or "A"
+  string start_position = 6;
+  string dir = 7;
+  string closed_pnl = 8;
+  bool crossed = 9;         // true=taker, false=maker
+  string fee = 10;
+  string builder_fee = 11;
+  FillLiquidation liquidation = 12;
+}
+
+message FillLiquidation {
+  string liquidated_user = 1;
+  string mark_px = 2;
+  string method = 3;        // "MARKET" or "BACKSTOP"
+}
+
+// ─── Stream 2: Trades ────────────────────────────────────────────
+message NodeTradesByBlock {
+  uint64 block_number = 1;
+  string block_time = 2;
+  repeated TradeEvent events = 3;
+}
+
+message TradeEvent {
+  string coin = 1;
+  string px = 2;
+  string sz = 3;
+  string side = 4;
+  repeated string users = 5;
+  TradeFill buyer = 6;
+  TradeFill seller = 7;
+}
+
+message TradeFill {
+  string start_position = 1;
+  string dir = 2;
+  string closed_pnl = 3;
+  string fee = 4;
+  bool crossed = 5;
+}
+
+// ─── Stream 3: Orders ────────────────────────────────────────────
+message OrdersByBlock {
+  uint64 block_number = 1;
+  string block_time = 2;
+  repeated OrderEvent events = 3;
+}
+
+message OrderEvent {
+  string builder = 1;
+  string user = 2;
+  string status = 3;        // "open" | "cancelled" | "filled" | "rejected"
+  OrderInfo order = 4;
+}
+
+message OrderInfo {
+  string coin = 1;
+  string side = 2;
+  string limit_px = 3;
+  string sz = 4;
+  string orig_sz = 5;
+  string order_type = 6;
+  string tif = 7;
+  bool reduce_only = 8;
+  bool is_trigger = 9;
+  string trigger_px = 10;
+}
+
+// ─── Stream 4: Misc Events ───────────────────────────────────────
+message MiscEventsByBlock {
+  uint64 block_number = 1;
+  string block_time = 2;
+  repeated FundingEvent funding = 3;
+  repeated LiquidationEvent liquidations = 4;
+  repeated CapitalEvent capital = 5;
+}
+
+message FundingEvent {
+  string coin = 1;
+  string funding_rate = 2;
+  string n_samples = 3;
+  string szi = 4;
+  string usdc = 5;
+}
+
+message LiquidationEvent {
+  string user = 1;
+  string liquidated_ntl_pos = 2;
+  string account_value = 3;
+  string leverage_type = 4;
+  repeated LiquidatedPosition positions = 5;
+}
+
+message LiquidatedPosition {
+  string coin = 1;
+  string sz = 2;
+}
+
+message CapitalEvent {
+  string type = 1;           // "deposit" | "withdrawal" | "perp_transfer"
+  string user = 2;
+  string usdc = 3;
+  bool to_perp = 4;
+}

@@ -1,0 +1,7 @@
+{
+    "installCommand": "cd ../.. && pnpm install --filter=defitaxes...",
+    "buildCommand": "cd ../.. && pnpm turbo build --filter=defitaxes",
+    "framework": "vite",
+    "outputDirectory": "dist",
+    "ignoreCommand": "npx turbo-ignore"
+}

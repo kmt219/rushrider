@@ -1,0 +1,32 @@
+project: "uniswap-lp-pool"
+topic: "base.mainnet.ref.block.logs.v1"
+destination:
+  type: "postgres"
+  url: "${POSTGRES_URL}"
+  user: "${PG_USER}"
+  password: "${PG_PASSWORD}"
+  schema: "uniswap_lp_pool"
+  batch_size: 1000
+  flush_interval_ms: 5000
+transforms:
+  logs: >
+    SELECT
+      chain_name,
+      tx_offset,
+      block_height,
+      block_signed_at,
+      tx_hash,
+      log_offset,
+      contract_address,
+      CAST(tick AS VARCHAR) AS tick,
+      CAST(sqrt_price_x96 AS VARCHAR) AS sqrt_price_x96,
+      CAST(liquidity AS VARCHAR) AS liquidity,
+      CAST(tick_lower AS VARCHAR) AS tick_lower,
+      CAST(tick_upper AS VARCHAR) AS tick_upper,
+      CAST(amount AS VARCHAR) AS amount,
+      CAST(amount0 AS VARCHAR) AS amount0,
+      CAST(amount1 AS VARCHAR) AS amount1
+    FROM logs
+execution:
+  mode: "unbounded"
+  start_from: "39100000"

@@ -1,0 +1,8 @@
+{
+    "installCommand": "cd ../.. && pnpm install --filter=hyperliquid...",
+    "buildCommand": "cd ../.. && pnpm turbo build --filter=hyperliquid",
+    "framework": "vite",
+    "outputDirectory": "dist",
+    "ignoreCommand": "npx turbo-ignore",
+    "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+}

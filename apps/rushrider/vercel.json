@@ -1,0 +1,8 @@
+{
+    "installCommand": "cd ../.. && pnpm install --filter=rushrider...",
+    "buildCommand": "cd ../.. && pnpm turbo build --filter=rushrider",
+    "framework": "vite",
+    "outputDirectory": "dist",
+    "ignoreCommand": "npx turbo-ignore",
+    "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+}

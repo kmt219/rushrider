@@ -1,0 +1,7 @@
+{
+    "installCommand": "cd ../.. && pnpm install --filter=event-stream-demo...",
+    "buildCommand": "cd ../.. && pnpm turbo build --filter=event-stream-demo",
+    "framework": "vite",
+    "outputDirectory": "dist",
+    "ignoreCommand": "npx turbo-ignore"
+}
